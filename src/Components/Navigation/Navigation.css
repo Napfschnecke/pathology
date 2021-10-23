@@ -1,0 +1,37 @@
+.brandText {
+    font-size: 28px;
+
+    background: linear-gradient(to right, #5b4897, #36BCEE , #1FAF98 , #FFED7B , #F39000 , #E9454E );
+    background-size: 600% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    -webkit-animation: gradient 60s ease infinite;
+    -moz-animation: gradient 60s ease infinite;
+    animation: gradient 60s ease infinite;
+}
+
+.dropShadow{
+    text-shadow: 1px 1px 2px black;
+}
+
+.customNavBackground {
+    background: black !important;
+}
+
+@keyframes gradient {
+    0%{background-position:0}
+    50%{background-position:100%}
+    100%{background-position:0}
+}
+
+@-webkit-keyframes gradient {
+    0%{background-position:0}
+    50%{background-position:100%}
+    100%{background-position:0}
+}
+@-moz-keyframes gradient {
+    0%{background-position:0}
+    50%{background-position:100%}
+    100%{background-position:0}
+}

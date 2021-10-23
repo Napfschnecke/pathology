@@ -1,0 +1,80 @@
+Table {
+    width: auto !important;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    user-select: none;
+}
+
+.gridCell {
+    color: white;
+    border: 2px solid black;
+    border-radius: 50%;
+    margin: 3px;
+    width: 1.5em;
+    height: 1.5em;
+    max-width: 2em;
+    max-height: 2em;
+    transition: background-color .5s;
+}
+
+.buttonClear {
+    margin-left: 20px;
+    background-color: transparent;
+    color: darkred;
+    border: 1px solid darkred;
+    border-radius: 5px;
+    font-size: 18px;
+    padding: 5px;
+    transition: background-color 1s, color 1s;
+}
+
+.buttonClear:hover {
+    background-color: darkred;
+    color: white;
+}
+
+.buttonVisualize {
+    margin-left: 20px;
+    background-color: transparent;
+    color: #1FAF98;
+    border: 1px solid #1FAF98;
+    border-radius: 5px;
+    font-size: 18px;
+    padding: 5px;
+    transition: background-color 1s, color 1s;
+}
+
+.buttonVisualize:hover {
+    background-color: #1FAF98;
+    color: white;
+}
+
+.defaultNode {
+    background-color: rgb(204, 196, 185) !important;
+}
+
+.startNode {
+    background-color: rgb(77, 109, 216) !important;
+}
+
+.targetNode {
+    background-color: rgb(71, 189, 71) !important;
+}
+
+.wallNode {
+    background-color: black !important;
+}
+
+.pathNode {
+    background-color: rgb(231, 174, 16) !important;
+}
+
+.visitedNode {
+    background-color: rgb(93, 135, 252) !important;
+}
+
+.registeredNode {
+    background-color: rgba(122, 196, 165, 0.959) !important;
+}
