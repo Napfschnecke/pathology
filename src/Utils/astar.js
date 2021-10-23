@@ -1,6 +1,6 @@
 var nodes = [];
 
-export function calculateAStar(mazeState) {
+export function calculateAStar(mazeState, isDjkstra) {
     nodes = [];
     const startNode = mazeState.startNode;
     const targetNode = mazeState.targetNode;
@@ -9,7 +9,7 @@ export function calculateAStar(mazeState) {
     let pathToTarget = [];
     let searchHistory = [];
     
-    buildNodeArray(mazeState);
+    buildNodeArray(mazeState, isDjkstra);
     let nStart = nodes.find(n => (n.x === startNode.x && n.y === startNode.y));
     openList.push(nStart);
     searchHistory.push(nStart);
@@ -60,14 +60,18 @@ export function calculateAStar(mazeState) {
     }
 }
 
-function buildNodeArray(mazeState) {
+function buildNodeArray(mazeState, isDjkstra) {
 
     mazeState.cells.forEach( (yCoord, i) => (
         yCoord.forEach((xCoord, j) => {
-            let estimatedTTF = Math.abs(j - mazeState.targetNode.x) + 
+            if (isDjkstra) {            
+                nodes.push({x: j, y: i, isWall: xCoord.isWall ? true : false, gCost: 0.0, hCost: 0.0, fCost: 0.0, previousNode: undefined});
+            } else {
+                let estimatedTTF = Math.abs(j - mazeState.targetNode.x) + 
                 Math.abs(i - mazeState.targetNode.y);   
             
-            nodes.push({x: j, y: i, isWall: xCoord.isWall ? true : false, gCost: 0.0, hCost: estimatedTTF, fCost: estimatedTTF, previousNode: undefined});
+                nodes.push({x: j, y: i, isWall: xCoord.isWall ? true : false, gCost: 0.0, hCost: estimatedTTF, fCost: estimatedTTF, previousNode: undefined});
+            }
         })
     ));
 }

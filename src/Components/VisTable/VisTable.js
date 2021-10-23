@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table} from  "react-bootstrap";
+import {Table, ToggleButton, ButtonGroup} from  "react-bootstrap";
 import {FormControl, FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./VisTable.css"
@@ -21,6 +21,7 @@ class VisTable extends React.Component {
         this.state = {
             startNode: {x: -1, y: -1},
             targetNode: {x: -1, y: -1},
+            selectedAlgorithm: 'a*',
             mode: "start",
             cells : [...Array(30)].map( e => Array(40).fill({visited: false, isStart: false, isTarget: false, isPath: false, isWall: false, registered: false}))
         };
@@ -29,10 +30,30 @@ class VisTable extends React.Component {
     render()  {
 
         const cells = this.state.cells;
+        const algoState = this.state.selectedAlgorithm;
+        const algos = [{name: 'A*', value: 'a*'}, {name: 'Djkstra', value: 'djkstra'}];
 
         return (
             <>
                 <div className="Radio-buttons" style={{textAlign: 'center'}}>
+                        <ButtonGroup className="mb-2 algoSelection">
+                            {algos.map((alg, idx) => (
+                            <ToggleButton
+                                className="algoButton"
+                                key={idx}
+                                id={`algo-${idx}`}
+                                type="radio"
+                                variant="outline-primary"
+                                name="radio"
+                                value={alg.value}
+                                checked={algoState === alg.value}
+                                onChange={(e) => this.setAlgorithm(e.currentTarget.value)}
+                            >
+                                {alg.name}
+                            </ToggleButton>
+                            ))}
+                        </ButtonGroup>
+
                         <FormControl component="fieldset">
                             <RadioGroup row aria-label="elements" name="elements" onChange={this.setMode} defaultChecked="start" defaultValue="start">
                                 <FormControlLabel value="start"
@@ -80,7 +101,7 @@ class VisTable extends React.Component {
                         </FormControl>
                         <button onClick={() => this.clearWalls() } className="buttonClear">Clear Walls</button>
                         <button onClick={() => this.reset() } className="buttonClear">Reset</button>
-                        <button onClick={() => this.startAStar()} className="buttonVisualize">Visualize</button>
+                        <button onClick={() => this.startPathfinding()} className="buttonVisualize">Visualize</button>
 
                 </div>
                 <Table variant="dark">
@@ -106,6 +127,14 @@ class VisTable extends React.Component {
 
     }
 
+    setAlgorithm(selection){
+        console.log(`Alg set to: ${selection}`)
+        this.setState(state => ({
+            ...state,
+            selectedAlgorithm: selection
+        }));
+    }
+
     clearWalls = () => {
         this.setState(state => ({
             ...state,
@@ -124,11 +153,28 @@ class VisTable extends React.Component {
         }))
     }
 
-    startAStar = () => {
-        let result = calculateAStar(this.state);
+    setMode = v => {
+        this.setState(state => ({
+            ...state, 
+            mode: v.target.value
+        }));
+    }
+
+    startPathfinding = () => {
+        let result = [];
+        switch(this.state.selectedAlgorithm) {
+            case 'a*': result = calculateAStar(this.state, false); break;
+            case 'djkstra': result = calculateAStar(this.state, true); break;
+            default: result = calculateAStar(this.state, false);
+        }
         
-        result.forEach ( regNode => {
-            setTimeout( () => (
+        this.animateResult(result);
+    }
+
+    animateResult(result) {
+        console.log(result);
+        result.forEach(regNode => {
+            setTimeout(() => (
                 this.setState(state => ({
                     ...state,
                     cells: state.cells.map((yCoord, i) => yCoord.map((xCoord, j) => {
@@ -148,23 +194,11 @@ class VisTable extends React.Component {
                             }
 
                         }
-                
-                        return {...xCoord, isPath: isPath, visited: visited, registered: registered};
+
+                        return { ...xCoord, isPath: isPath, visited: visited, registered: registered };
                     }))
-                }))
-            , 5));
-        })
-
-        
-        
-        
-    }
-
-    setMode = v => {
-        this.setState(state => ({
-            ...state, 
-            mode: v.target.value
-        }));
+                })), 5));
+        });
     }
 
     asignEndNodes(x, y){

@@ -5,13 +5,13 @@ Table {
     margin-top: 30px;
     margin-bottom: 30px;
     user-select: none;
+    border-collapse: separate;
 }
 
 .gridCell {
     color: white;
-    border: 2px solid black;
+    border: 1px solid black;
     border-radius: 50%;
-    margin: 3px;
     width: 1.5em;
     height: 1.5em;
     max-width: 2em;
@@ -19,11 +19,19 @@ Table {
     transition: background-color .5s;
 }
 
+.algoSelection {
+    margin-right: 20px;
+}
+
+.algoButton {
+    color: white;
+}
+
 .buttonClear {
     margin-left: 20px;
     background-color: transparent;
-    color: darkred;
-    border: 1px solid darkred;
+    color: red;
+    border: 2px solid darkred;
     border-radius: 5px;
     font-size: 18px;
     padding: 5px;
@@ -38,8 +46,8 @@ Table {
 .buttonVisualize {
     margin-left: 20px;
     background-color: transparent;
-    color: #1FAF98;
-    border: 1px solid #1FAF98;
+    color: lightgreen;
+    border: 2px solid #1FAF98;
     border-radius: 5px;
     font-size: 18px;
     padding: 5px;
@@ -52,15 +60,15 @@ Table {
 }
 
 .defaultNode {
-    background-color: rgb(204, 196, 185) !important;
+    background-color: rgba(204, 196, 185, 0.726) !important;
 }
 
 .startNode {
-    background-color: rgb(77, 109, 216) !important;
+    background-color: #36BCEE !important;
 }
 
 .targetNode {
-    background-color: rgb(71, 189, 71) !important;
+    background-color: #1FAF98 !important;
 }
 
 .wallNode {
@@ -76,5 +84,5 @@ Table {
 }
 
 .registeredNode {
-    background-color: rgba(122, 196, 165, 0.959) !important;
+    background-color: rgb(116, 241, 189) !important;
 }
