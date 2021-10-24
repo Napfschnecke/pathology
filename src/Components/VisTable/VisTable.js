@@ -1,6 +1,6 @@
 import React from 'react';
 import {Table, ToggleButton, ButtonGroup} from  "react-bootstrap";
-import {FormControl, FormControlLabel, Radio, RadioGroup} from "@mui/material";
+import {FormControl, FormControlLabel, Radio, RadioGroup, Switch} from "@mui/material";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./VisTable.css"
 import { calculateAStar } from '../../Utils/astar';
@@ -13,6 +13,8 @@ document.body.onmouseup = function() {
   mouseDown = false;
   
 }
+const timer = ms => new Promise(res => setTimeout(res, ms))
+
 
 class VisTable extends React.Component {
 
@@ -23,6 +25,7 @@ class VisTable extends React.Component {
             targetNode: {x: -1, y: -1},
             selectedAlgorithm: 'a*',
             mode: "start",
+            diagonals: true,
             cells : [...Array(30)].map( e => Array(40).fill({visited: false, isStart: false, isTarget: false, isPath: false, isWall: false, registered: false}))
         };
       }
@@ -32,10 +35,40 @@ class VisTable extends React.Component {
         const cells = this.state.cells;
         const algoState = this.state.selectedAlgorithm;
         const algos = [{name: 'A*', value: 'a*'}, {name: 'Djkstra', value: 'djkstra'}];
+        const diagonals = this.state.diagonals;
+
+        /*
+        <ToggleButton
+                            className="algoButton"
+                            id="toggle-diagonal"
+                            type="checkbox"
+                            variant="outline-primary"
+                            checked={diagonals}
+                            value={diagonals}
+                            onChange={(e) => this.toggleDiagonals(e.target.value)}>
+                            {diagonals ? "Yes": "No"}
+                        </ToggleButton>
+        */
 
         return (
             <>
                 <div className="Radio-buttons" style={{textAlign: 'center'}}>
+                        
+                        <FormControlLabel 
+                            control={
+                                <Switch 
+                                    defaultChecked={false}
+                                    color="primary"
+                                    checked={diagonals}
+                                    onChange={(e) => this.toggleDiagonals(e.target.value)}
+                                />
+                            } 
+                            label={`Diagonals`}
+                            labelPlacement="start"
+                            sx={{
+                                color: '#fff',
+                              }}
+                        />
                         <ButtonGroup className="mb-2 algoSelection">
                             {algos.map((alg, idx) => (
                             <ToggleButton
@@ -99,6 +132,7 @@ class VisTable extends React.Component {
                                   }}/>
                             </RadioGroup>
                         </FormControl>
+                        
                         <button onClick={() => this.clearWalls() } className="buttonClear">Clear Walls</button>
                         <button onClick={() => this.reset() } className="buttonClear">Reset</button>
                         <button onClick={() => this.startPathfinding()} className="buttonVisualize">Visualize</button>
@@ -109,12 +143,8 @@ class VisTable extends React.Component {
                         {cells.map((row, rInd) => (
                             <tr key={"row" + rInd}>
                                 {row.map( (col, cInd) => (
-                                <td key={"col" + cInd} className={`gridCell ${col.isStart ? "startNode" : "defaultNode"} 
-                                ${col.isTarget ? "targetNode" : "defaultNode"}
-                                ${col.isPath ? "pathNode" : "defaultNode"}
-                                ${col.visited ? "visitedNode" : "defaultNode"}
-                                ${col.registered ? "registeredNode" : "defaultNode"}
-                                ${col.isWall ? "wallNode" : "defaultNode"}`}
+                                <td key={"col" + cInd} className={`gridCell
+                                ${this.resolveNodeColor(col)}`}
                                 onClick={() => this.asignEndNodes(cInd, rInd)}
                                 onMouseOver={() => this.addWall(cInd, rInd)}></td>
                             ))}
@@ -127,6 +157,21 @@ class VisTable extends React.Component {
 
     }
 
+     /*
+        toggle diagonal traversal
+    */
+    toggleDiagonals() {
+        console.log(`Diagonals set to: ${!this.state.diagonals}`)
+        this.setState(state => ({
+            ...state,
+            diagonals: !this.state.diagonals
+        }));
+    }
+
+
+    /*
+        set algorithm to use
+    */
     setAlgorithm(selection){
         console.log(`Alg set to: ${selection}`)
         this.setState(state => ({
@@ -135,6 +180,30 @@ class VisTable extends React.Component {
         }));
     }
 
+    /*
+    assign class according to node state
+    */
+    resolveNodeColor(node) {
+        if (node.isStart) {
+            return 'startNode';
+        } else if (node.isTarget) {
+            return 'targetNode';
+        }else if (node.registered) {
+            return 'registeredNode';
+        }else if (node.visited) {
+            return 'visitedNode';
+        }else if (node.isPath) {
+            return 'pathNode';
+        }else if (node.isWall) {
+            return 'wallNode';
+        } else {
+            return 'defaultNode';
+        }
+    }
+
+    /*
+        remove all placed walls
+    */
     clearWalls = () => {
         this.setState(state => ({
             ...state,
@@ -144,15 +213,21 @@ class VisTable extends React.Component {
         }))
     }
 
+    /*
+        reset the whole board
+    */
     reset = () => {
         this.setState(state => ({
+            ...state, 
             startNode: {x: -1, y: -1},
             targetNode: {x: -1, y: -1},
-            mode: "start",
             cells : [...Array(30)].map( e => Array(40).fill({visited: false, isStart: false, isTarget: false, isPath: false, isWall: false, registered: false}))
         }))
     }
 
+    /*
+        switch node-placing mode
+    */
     setMode = v => {
         this.setState(state => ({
             ...state, 
@@ -160,47 +235,63 @@ class VisTable extends React.Component {
         }));
     }
 
+    /*
+        select and start pathfinding according to selected algorithm
+    */
     startPathfinding = () => {
         let result = [];
         switch(this.state.selectedAlgorithm) {
-            case 'a*': result = calculateAStar(this.state, false); break;
-            case 'djkstra': result = calculateAStar(this.state, true); break;
-            default: result = calculateAStar(this.state, false);
+            case 'a*': result = calculateAStar(this.state, false, this.state.diagonals); break;
+            case 'djkstra': result = calculateAStar(this.state, true, this.state.diagonals); break;
+            default: result = calculateAStar(this.state, false, this.state.diagonals);
         }
         
         this.animateResult(result);
     }
 
-    animateResult(result) {
-        console.log(result);
-        result.forEach(regNode => {
-            setTimeout(() => (
-                this.setState(state => ({
-                    ...state,
-                    cells: state.cells.map((yCoord, i) => yCoord.map((xCoord, j) => {
-                        let isPath = xCoord.isPath;
-                        let visited = xCoord.visited;
-                        let registered = xCoord.registered;
-                        if (regNode.x === j && regNode.y === i) {
-                            if (xCoord.registered) {
-                                registered = false;
-                                visited = true;
-                            } else if (xCoord.visited) {
-                                registered = false;
-                                visited = false;
-                                isPath = true;
-                            } else {
-                                registered = true;
-                            }
+    /*
+        animate the searchresults
+    */
+    async animateResult(result) {
 
-                        }
-
-                        return { ...xCoord, isPath: isPath, visited: visited, registered: registered };
-                    }))
-                })), 5));
-        });
+        for (var i = 0; i < result.length; i++) {
+            let node = result[i];
+            this.setState(state => ({
+                ...state,
+                cells: this.updateMaze(state.cells, node.x, node.y)
+            }))
+            await timer( 1000 / result.length);
+        }
     }
 
+    /*
+        update searched node states according to algorithm result
+        this got somehow inverted (visited nodes become registered nodes and other way around)
+        no clue why. states after the method function runs log out fine
+    */
+    updateMaze(cells, x, y) {
+        
+        let targetCell = cells[y][x];
+        let visited = targetCell.visited;
+        let registered = targetCell.registered;
+
+        if (registered) {
+            targetCell.visited = true;
+            targetCell.registered = false;
+        } else if (visited) {
+            targetCell.registered = false;
+            targetCell.visited = false;
+            targetCell.isPath = true;
+        } else {
+            targetCell.registered = true;
+        }
+        cells[y][x] = targetCell;
+        return cells;
+    }
+
+    /*
+        assign start or end node
+    */
     asignEndNodes(x, y){
         if (this.state.mode === "start") {
             this.setState(state => ({
@@ -231,6 +322,9 @@ class VisTable extends React.Component {
         }
     }
 
+    /*
+        place walls by dragging clicked mouse over
+    */
     addWall(x, y){
         if (mouseDown && this.state.mode === "wall") {
             this.setState(state => ({
