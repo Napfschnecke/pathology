@@ -37,19 +37,6 @@ class VisTable extends React.Component {
         const algos = [{name: 'A*', value: 'a*'}, {name: 'Djkstra', value: 'djkstra'}];
         const diagonals = this.state.diagonals;
 
-        /*
-        <ToggleButton
-                            className="algoButton"
-                            id="toggle-diagonal"
-                            type="checkbox"
-                            variant="outline-primary"
-                            checked={diagonals}
-                            value={diagonals}
-                            onChange={(e) => this.toggleDiagonals(e.target.value)}>
-                            {diagonals ? "Yes": "No"}
-                        </ToggleButton>
-        */
-
         return (
             <>
                 <div className="Radio-buttons" style={{textAlign: 'center'}}>
@@ -143,10 +130,11 @@ class VisTable extends React.Component {
                         {cells.map((row, rInd) => (
                             <tr key={"row" + rInd}>
                                 {row.map( (col, cInd) => (
-                                <td key={"col" + cInd} className={`gridCell
-                                ${this.resolveNodeColor(col)}`}
-                                onClick={() => this.asignEndNodes(cInd, rInd)}
-                                onMouseOver={() => this.addWall(cInd, rInd)}></td>
+                                <td key={"col" + cInd} 
+                                    className={`gridCell ${this.resolveNodeColor(col)}`}
+                                    onClick={() => this.asignEndNodes(cInd, rInd)}
+                                    onMouseOver={() => this.addWall(cInd, rInd)}>
+                                </td>
                             ))}
                             </tr>
                         ))}
@@ -196,7 +184,7 @@ class VisTable extends React.Component {
             return 'pathNode';
         }else if (node.isWall) {
             return 'wallNode';
-        } else {
+        }else {
             return 'defaultNode';
         }
     }
@@ -251,6 +239,7 @@ class VisTable extends React.Component {
 
     /*
         animate the searchresults
+        TODO: rewrite to use multiple cells per step to decrease animation time for large searches
     */
     async animateResult(result) {
 
@@ -260,7 +249,7 @@ class VisTable extends React.Component {
                 ...state,
                 cells: this.updateMaze(state.cells, node.x, node.y)
             }))
-            await timer( 1000 / result.length);
+            await timer(500 / result.length);
         }
     }
 
