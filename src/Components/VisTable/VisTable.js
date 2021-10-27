@@ -239,42 +239,45 @@ class VisTable extends React.Component {
 
     /*
         animate the searchresults
-        TODO: rewrite to use multiple cells per step to decrease animation time for large searches
     */
     async animateResult(result) {
+        let speed = 10;
+        for (let i = 0; i < result.length; i += speed) {
+            if ((result.length - i) < 10) {
+                speed = result.length - i;
+            }
+            let toUpdate = [];
+            for (let k = i; k < i + speed; k++) {
+                toUpdate.push(result[k])
+            }
 
-        for (var i = 0; i < result.length; i++) {
-            let node = result[i];
             this.setState(state => ({
                 ...state,
-                cells: this.updateMaze(state.cells, node.x, node.y)
+                cells: this.batchUpdateMaze(state.cells, toUpdate)
             }))
-            await timer(500 / result.length);
+            await timer(5);
         }
     }
 
-    /*
-        update searched node states according to algorithm result
-        this got somehow inverted (visited nodes become registered nodes and other way around)
-        no clue why. states after the method function runs log out fine
-    */
-    updateMaze(cells, x, y) {
-        
-        let targetCell = cells[y][x];
-        let visited = targetCell.visited;
-        let registered = targetCell.registered;
+    batchUpdateMaze(cells, nodes) {
 
-        if (registered) {
-            targetCell.visited = true;
-            targetCell.registered = false;
-        } else if (visited) {
-            targetCell.registered = false;
-            targetCell.visited = false;
-            targetCell.isPath = true;
-        } else {
-            targetCell.registered = true;
-        }
-        cells[y][x] = targetCell;
+        nodes.forEach( n => {
+            let targetCell = cells[n.y][n.x];
+            let visited = targetCell.visited;
+            let registered = targetCell.registered;
+
+            if (registered) {
+                targetCell.visited = true;
+                targetCell.registered = false;
+            } else if (visited) {
+                targetCell.registered = false;
+                targetCell.visited = false;
+                targetCell.isPath = true;
+            } else {
+                targetCell.registered = true;
+            }
+            cells[n.y][n.x] = targetCell;
+        })
         return cells;
     }
 
