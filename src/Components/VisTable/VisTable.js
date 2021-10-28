@@ -1,6 +1,6 @@
 import React from 'react';
 import {Table, ToggleButton, ButtonGroup} from  "react-bootstrap";
-import {FormControl, FormControlLabel, Radio, RadioGroup, Switch} from "@mui/material";
+import {FormControl, FormControlLabel, FormGroup, Radio, RadioGroup, Switch} from "@mui/material";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./VisTable.css"
 import { calculateAStar } from '../../Utils/astar';
@@ -26,6 +26,7 @@ class VisTable extends React.Component {
             selectedAlgorithm: 'a*',
             mode: "start",
             diagonals: true,
+            greedy: false,
             cells : [...Array(30)].map( e => Array(40).fill({visited: false, isStart: false, isTarget: false, isPath: false, isWall: false, registered: false}))
         };
       }
@@ -36,43 +37,69 @@ class VisTable extends React.Component {
         const algoState = this.state.selectedAlgorithm;
         const algos = [{name: 'A*', value: 'a*'}, {name: 'Djkstra', value: 'djkstra'}];
         const diagonals = this.state.diagonals;
+        const greedy = this.state.greedy;
 
         return (
             <>
                 <div className="Radio-buttons" style={{textAlign: 'center'}}>
-                        
-                        <FormControlLabel 
-                            control={
-                                <Switch 
-                                    defaultChecked={false}
-                                    color="primary"
-                                    checked={diagonals}
-                                    onChange={(e) => this.toggleDiagonals(e.target.value)}
-                                />
-                            } 
-                            label={`Diagonals`}
-                            labelPlacement="start"
-                            sx={{
-                                color: '#fff',
-                              }}
-                        />
+
                         <ButtonGroup className="mb-2 algoSelection">
                             {algos.map((alg, idx) => (
-                            <ToggleButton
-                                className="algoButton"
-                                key={idx}
-                                id={`algo-${idx}`}
-                                type="radio"
-                                variant="outline-primary"
-                                name="radio"
-                                value={alg.value}
-                                checked={algoState === alg.value}
-                                onChange={(e) => this.setAlgorithm(e.currentTarget.value)}
-                            >
-                                {alg.name}
-                            </ToggleButton>
+                                <ToggleButton
+                                    className="algoButton"
+                                    key={idx}
+                                    id={`algo-${idx}`}
+                                    type="radio"
+                                    variant="outline-primary"
+                                    name="radio"
+                                    value={alg.value}
+                                    checked={algoState === alg.value}
+                                    onChange={(e) => this.setAlgorithm(e.currentTarget.value)}
+                                >
+                                    {alg.name}
+                                </ToggleButton>
                             ))}
                         </ButtonGroup>
+                        <FormGroup className={'switchGroup'}
+                            sx={{ '&.MuiFormGroup-root': {
+                                    display: 'inline-flex',
+                                    height: '100px'
+                            }
+                            }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        color="primary"
+                                        checked={diagonals}
+                                        onChange={(e) => this.toggleDiagonals(e.target.value)}
+                                    />
+                                }
+                                label={`Diagonals`}
+                                labelPlacement="start"
+                                sx={{
+                                    color: '#fff',
+                                    marginRight: '20px'
+                                }}
+                            />
+                            {algoState === 'a*' ? <FormControlLabel
+                                className={'optionalForm'}
+                                control={
+                                    <Switch
+                                        color="primary"
+                                        checked={greedy}
+                                        onChange={(e) => this.toggleGreedy(e.target.value)}
+                                    />
+                                }
+                                label={`Greedy`}
+                                labelPlacement="start"
+                                disabled={algoState !== 'a*'}
+                                sx={{
+                                    color: '#fff',
+                                    marginRight: '20px'
+                                }}
+                            /> : <></>}
+                        </FormGroup>
+
 
                         <FormControl component="fieldset">
                             <RadioGroup row aria-label="elements" name="elements" onChange={this.setMode} defaultChecked="start" defaultValue="start">
@@ -156,6 +183,17 @@ class VisTable extends React.Component {
         }));
     }
 
+    /*
+        toggle greedy search
+    */
+    toggleGreedy() {
+        console.log(`Greedy set to: ${!this.state.greedy}`)
+        this.setState(state => ({
+            ...state,
+            greedy: !this.state.greedy
+        }));
+    }
+
 
     /*
         set algorithm to use
@@ -229,9 +267,9 @@ class VisTable extends React.Component {
     startPathfinding = () => {
         let result = [];
         switch(this.state.selectedAlgorithm) {
-            case 'a*': result = calculateAStar(this.state, false, this.state.diagonals); break;
-            case 'djkstra': result = calculateAStar(this.state, true, this.state.diagonals); break;
-            default: result = calculateAStar(this.state, false, this.state.diagonals);
+            case 'a*': result = calculateAStar(this.state, false, this.state.diagonals, this.state.greedy); break;
+            case 'djkstra': result = calculateAStar(this.state, true, this.state.diagonals, false); break;
+            default: result = calculateAStar(this.state, false, this.state.diagonals, this.state.greedy);
         }
         
         this.animateResult(result);

@@ -2,7 +2,6 @@ Table {
     width: auto !important;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 30px;
     margin-bottom: 30px;
     user-select: none;
     border-collapse: separate;
@@ -21,7 +20,11 @@ Table {
 
 .algoSelection {
     margin-right: 20px;
-    margin-left: 20px;
+}
+
+
+.optionalForm {
+    animation: fadeIn 1s;
 }
 
 .algoButton {
@@ -92,6 +95,15 @@ Table {
 
 .registeredNode {
     background-color: rgb(116, 241, 189) !important;
+}
+
+@keyframes fadeIn {
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
 }
 
 @keyframes gradient {

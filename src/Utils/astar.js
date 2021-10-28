@@ -5,7 +5,7 @@ var nodes = [];
     option to allow for diagonal traversal
     returns list with all registered nodes to reconstruct search process
 */
-export function calculateAStar(mazeState, isDjkstra, allowDiagonals) {
+export function calculateAStar(mazeState, isDjkstra, allowDiagonals, greedy) {
     nodes = [];
     const startNode = mazeState.startNode;
     const targetNode = mazeState.targetNode;
@@ -22,7 +22,7 @@ export function calculateAStar(mazeState, isDjkstra, allowDiagonals) {
     while(openList.length > 0) {
 
         //retrieve node with lowest cost from registered nodes
-        let currentNode = openList.reduce( (prev, curr) => prev.fCost < curr.fCost ? prev : curr );
+        let currentNode = openList.reduce( (prev, curr) => (prev.fCost < curr.fCost ) && (greedy? prev.hCost < curr.hCost : true)? prev : curr );
 
         //remove current node to avoid circular search
         let iCurrent = openList.indexOf(currentNode);
@@ -41,6 +41,9 @@ export function calculateAStar(mazeState, isDjkstra, allowDiagonals) {
                 pathToTarget.push(currentNode);
                 searchHistory.push(currentNode);
             }
+            console.log(`PathLength: ${pathToTarget.length}`)
+            console.log(`SearchLength: ${searchHistory.length}`)
+
             return searchHistory;
         }
 
