@@ -5,6 +5,7 @@ Table {
     margin-bottom: 30px;
     user-select: none;
     border-collapse: separate;
+    animation: fadeIn 1s;
 }
 
 .gridCell {
