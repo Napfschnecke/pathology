@@ -22,8 +22,8 @@ export function calculateAStar(mazeState, isDjkstra, allowDiagonals, greedy) {
     while(openList.length > 0) {
 
         //retrieve node with lowest cost from registered nodes
-        let currentNode = openList.reduce( (prev, curr) => (prev.fCost < curr.fCost ) && (greedy? prev.fCost + prev.hCost < curr.fCost + curr.hCost : true)? prev : curr );
-
+        let currentNode = !greedy ? openList.reduce( (prev, curr) => (prev.fCost < curr.fCost ) ? prev : curr ):
+            openList.reduce( (prev, curr) => (prev.hCost < curr.hCost ) ? prev : curr );
         //remove current node to avoid circular search
         let iCurrent = openList.indexOf(currentNode);
         if (iCurrent > -1) {
